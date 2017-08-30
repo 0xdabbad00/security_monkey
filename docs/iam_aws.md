@@ -194,7 +194,6 @@ The instructions below assume you now know how to create IAM roles from the abov
                     "ses:getidentityverificationattributes",
                     "ses:listidentities",
                     "ses:listverifiedemailaddresses",
-                    "ses:sendemail",
                     "sns:gettopicattributes",
                     "sns:listsubscriptionsbytopic",
                     "sns:listtopics",
