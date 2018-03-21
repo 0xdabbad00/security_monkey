@@ -59,6 +59,7 @@ To enable NGINX and the supervisor, run the following commands (these also set t
     sudo systemctl enable supervisor
     sudo systemctl start nginx
     sudo systemctl start supervisor
+    sudo supervisorctl reload
     sudo supervisorctl status
 
 The `supervisorctl status` should output details about the loaded supervisor job.
