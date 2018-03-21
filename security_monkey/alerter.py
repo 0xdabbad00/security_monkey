@@ -19,6 +19,7 @@
 .. moduleauthor:: Patrick Kelley <pkelley@netfilx.com> @monkeysecurity
 
 """
+from six import string_types
 
 from security_monkey import app
 from security_monkey.common.jinja import get_jinja_env
@@ -47,22 +48,21 @@ def report_content(content):
 
 class Alerter(object):
 
-    def __init__(self, watchers_auditors=[], account=None, debug=False):
+    def __init__(self, watchers_auditors=None, account=None, debug=False):
         """
         envs are list of environments where we care about changes
         """
-
         self.account = account
         self.notifications = ""
         self.new = []
         self.delete = []
         self.changed = []
-        self.watchers_auditors = watchers_auditors
-        users = User.query.filter(User.accounts.any(name=account)).filter(User.change_reports=='ALL').all()
+        self.watchers_auditors = watchers_auditors if watchers_auditors else []
+        users = User.query.filter(User.accounts.any(name=account)).filter(User.change_reports == 'ALL').all()
         self.emails = [user.email for user in users]
         self.team_emails = app.config.get('SECURITY_TEAM_EMAIL', [])
 
-        if type(self.team_emails) in (str, unicode):
+        if type(self.team_emails) in string_types:
             self.emails.append(self.team_emails)
         elif type(self.team_emails) in (list, tuple):
             self.emails.extend(self.team_emails)
@@ -73,12 +73,14 @@ class Alerter(object):
         """
         Collect change summaries from watchers defined and send out an email
         """
-        changed_watchers = [watcher_auditor.watcher for watcher_auditor in self.watchers_auditors if watcher_auditor.watcher.is_changed()]
+        changed_watchers = [watcher_auditor.watcher
+                            for watcher_auditor in self.watchers_auditors if watcher_auditor.watcher.is_changed()]
         has_issues = has_new_issue = has_unjustified_issue = False
         for watcher in changed_watchers:
             (has_issues, has_new_issue, has_unjustified_issue) = watcher.issues_found()
             if has_issues:
-                users = User.query.filter(User.accounts.any(name=self.account)).filter(User.change_reports=='ISSUES').all()
+                users = User.query.filter(
+                    User.accounts.any(name=self.account)).filter(User.change_reports == 'ISSUES').all()  # noqa
                 new_emails = [user.email for user in users]
                 self.emails.extend(new_emails)
                 break

@@ -45,7 +45,11 @@ class GitHubOrg(Watcher):
             "disk_usage",
             "owned_private_repos",
             "public_repos",
-            "disk_usage"
+            "total_private_repos",
+            "private_gists",
+            "public_gists",
+            "followers",
+            "following"
         ]
         self.github_creds = get_github_creds(self.accounts)
 
@@ -86,7 +90,8 @@ class GitHubOrg(Watcher):
                 account=account.name,
                 name=account.identifier,
                 arn=account.identifier,
-                config=org_details
+                config=org_details,
+                source_watcher=self
             ))
 
             return item_list, kwargs["exception_map"]
@@ -217,12 +222,11 @@ class GitHubOrg(Watcher):
 
 
 class GitHubOrgItem(ChangeItem):
-    def __init__(self, account=None, name=None, arn=None, config=None):
-        if config is None:
-            config = {}
+    def __init__(self, account=None, name=None, arn=None, config=None, source_watcher=None):
         super(GitHubOrgItem, self).__init__(index=GitHubOrg.index,
                                             region="universal",
                                             account=account,
                                             name=name,
                                             arn=arn,
-                                            new_config=config)
+                                            new_config=config if config else {},
+                                            source_watcher=source_watcher)

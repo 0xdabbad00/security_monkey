@@ -23,7 +23,7 @@ from security_monkey.watcher import Watcher
 from security_monkey.watcher import ChangeItem
 from security_monkey.constants import TROUBLE_REGIONS
 from security_monkey.exceptions import BotoConnectionIssue
-from security_monkey import app
+from security_monkey import app, ARN_PREFIX
 
 from dateutil.tz import tzutc
 import json
@@ -40,7 +40,6 @@ class KMS(Watcher):
         from security_monkey.common.sts_connect import connect
         return connect(kwargs['account_name'], 'boto3.kms.client', region=kwargs['region'],
                        assumed_role=kwargs['assumed_role'])
-
 
     def paged_wrap_aws_rate_limited_call(self, type, func, *args, **nargs):
         marker = None
@@ -93,7 +92,7 @@ class KMS(Watcher):
             if e.response.get("Error", {}).get("Code") != "AccessDeniedException":
                 raise
 
-            arn = "arn:aws:kms:{}:{}:key/{}".format(kwargs['region'],
+            arn = ARN_PREFIX + ":kms:{}:{}:key/{}".format(kwargs['region'],
                                                     kwargs['account_name'],
                                                     key_id)
 
@@ -227,7 +226,8 @@ class KMS(Watcher):
                                 config[u"Grants"] = grants
                                 config[u"KeyRotationEnabled"] = rotation_status
 
-                            item = KMSMasterKey(region=kwargs['region'], account=kwargs['account_name'], name=name, arn=config.get('Arn'), config=dict(config))
+                            item = KMSMasterKey(region=kwargs['region'], account=kwargs['account_name'], name=name,
+                                                arn=config.get('Arn'), config=dict(config), source_watcher=self)
                             item_list.append(item)
 
             return item_list, exception_map
@@ -235,11 +235,12 @@ class KMS(Watcher):
 
 
 class KMSMasterKey(ChangeItem):
-    def __init__(self, region=None, account=None, name=None, arn=None, config={}):
+    def __init__(self, region=None, account=None, name=None, arn=None, config=None, source_watcher=None):
         super(KMSMasterKey, self).__init__(
             index=KMS.index,
             region=region,
             account=account,
             name=name,
             arn=arn,
-            new_config=config)
+            new_config=config if config else {},
+            source_watcher=source_watcher)

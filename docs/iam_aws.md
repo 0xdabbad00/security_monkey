@@ -63,8 +63,6 @@ Creating SecurityMonkey Role
 You must now create the `SecurityMonkey` role that will actually be used to fetch the details about your AWS account.
 You will need to create this role in all AWS accounts that you want to monitor.
 
-The instructions below assume you now know how to create IAM roles from the above instructions:
-
 1. Create a new IAM role with the `AWS Service Role` type for `Amazon EC2`.
 
 1. Skip attaching a managed policy (simply click `Next Step` at the `Attach Policy` page).
@@ -92,6 +90,7 @@ The instructions below assume you now know how to create IAM roles from the abov
                     "ec2:describedhcpoptions",
                     "ec2:describeflowlogs",
                     "ec2:describeimages",
+                    "ec2:describeimageattribute",
                     "ec2:describeinstances",
                     "ec2:describeinternetgateways",
                     "ec2:describekeypairs",
@@ -102,6 +101,7 @@ The instructions below assume you now know how to create IAM roles from the abov
                     "ec2:describeroutetables",
                     "ec2:describesecuritygroups",
                     "ec2:describesnapshots",
+                    "ec2:describesnapshotattribute",
                     "ec2:describesubnets",
                     "ec2:describetags",
                     "ec2:describevolumes",
@@ -122,6 +122,10 @@ The instructions below assume you now know how to create IAM roles from the abov
                     "elasticloadbalancing:describetargethealth",
                     "es:describeelasticsearchdomainconfig",
                     "es:listdomainnames",
+                    "glacier:DescribeVault",
+                    "glacier:GetVaultAccessPolicy",
+                    "glacier:ListTagsForVault",
+                    "glacier:ListVaults",
                     "iam:getaccesskeylastused",
                     "iam:getgroup",
                     "iam:getgrouppolicy",
@@ -168,6 +172,7 @@ The instructions below assume you now know how to create IAM roles from the abov
                     "rds:describedbinstances",
                     "rds:describedbsecuritygroups",
                     "rds:describedbsnapshots",
+                    "rds:describedbsnapshotattributes",
                     "rds:describedbsubnetgroups",
                     "redshift:describeclusters",
                     "route53:listhostedzones",
@@ -199,7 +204,9 @@ The instructions below assume you now know how to create IAM roles from the abov
                     "sns:listsubscriptionsbytopic",
                     "sns:listtopics",
                     "sqs:getqueueattributes",
-                    "sqs:listqueues"
+                    "sqs:listqueues",
+                    "sqs:listqueuetags", 
+                    "sqs:listdeadlettersourcequeues"
                 ],
                 "Effect": "Allow",
                 "Resource": "*"
